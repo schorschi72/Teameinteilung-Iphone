@@ -1,9 +1,266 @@
-<html>
+<!DOCTYPE html>
+<html lang="de">
 <head>
-    <title>My GitHub Page</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Teams</title>
+
+<style>
+body{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#f2f2f7;
+  margin:1rem;
+}
+
+section{
+  background:#fff;
+  border-radius:14px;
+  padding:1rem;
+  margin-bottom:1rem;
+}
+
+button{
+  width:100%;
+  padding:.6rem;
+  font-size:1rem;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:#f7f7f7;
+  margin-top:.5rem;
+}
+
+input,textarea,select{
+  width:100%;
+  padding:.5rem;
+  font-size:1rem;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-top:.4rem;
+}
+
+.player{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:.5rem;
+  align-items:center;
+  margin-top:.5rem;
+}
+
+.slider{ width:80px; }
+.team{ margin-top:.8rem; }
+
+.small{
+  font-size:.8rem;
+  color:#666;
+  text-align:center;
+}
+</style>
 </head>
+
 <body>
-    <h1>Welcome to My GitHub Page!</h1>
-    <p>This is a simple page hosted on GitHub.</p>
+
+<section>
+  <button onclick="loadFile()">📂 Datei laden</button>
+  <button onclick="saveFile()">💾 Datei speichern</button>
+  <input type="file" id="fileInput" hidden>
+</section>
+
+<section>
+  <select id="listSelect" onchange="selectList()"></select>
+  <button onclick="createNewList()">➕ Neue Liste erstellen</button>
+</section>
+
+<section>
+  <strong>Spieler hinzufügen (1 pro Zeile)</strong>
+  <textarea id="bulkInput" rows="3"></textarea>
+  <button onclick="addBulk()">Zur aktuellen Liste hinzufügen</button>
+</section>
+
+<section>
+  <strong>Spielerliste</strong>
+  <div id="players"></div>
+</section>
+
+<section>
+  <input id="teamCount" type="number" min="2" placeholder="Anzahl Teams">
+  <button onclick="buildTeams()">Teams anzeigen</button>
+  <div id="teams"></div>
+</section>
+
+<section class="small">
+  Alle Listen werden gemeinsam in einer Datei gespeichert.<br>
+  Teams werden nie gespeichert.
+</section>
+
+<script>
+let data = { lists:{} };
+let currentList = null;
+
+/* ---------- LISTEN ---------- */
+
+function refreshListSelect(){
+  listSelect.innerHTML="";
+  const names = Object.keys(data.lists);
+
+  if(names.length === 0){
+    const o = document.createElement("option");
+    o.textContent = "Keine Liste vorhanden – neue erstellen";
+    o.disabled = true;
+    o.selected = true;
+    listSelect.appendChild(o);
+    currentList = null;
+    return;
+  }
+
+  names.forEach(name=>{
+    const o=document.createElement("option");
+    o.value=name;
+    o.textContent=name;
+    listSelect.appendChild(o);
+  });
+
+  if(!currentList || !data.lists[currentList]){
+    currentList = names[0];
+  }
+
+  listSelect.value = currentList;
+}
+
+function selectList(){
+  currentList = listSelect.value;
+  renderPlayers();
+  teams.innerHTML="";
+}
+
+function createNewList(){
+  const name = prompt("Name der neuen Liste:");
+  if(!name) return;
+
+  if(data.lists[name]){
+    alert("Diese Liste existiert bereits.");
+    return;
+  }
+
+  data.lists[name] = [];
+  currentList = name;
+
+  refreshListSelect();
+  renderPlayers();
+  teams.innerHTML="";
+}
+
+/* ---------- SPIELER ---------- */
+
+function renderPlayers(){
+  players.innerHTML="";
+  if(!currentList) return;
+
+  data.lists[currentList].forEach(p=>{
+    players.innerHTML += `
+      <div class="player">
+        <input type="checkbox" ${p.on ? "checked" : ""}
+          onchange="p.on = !p.on">
+        <span>${p.name}</span>
+        <input class="slider" type="range" min="1" max="4"
+          value="${p.str}" onchange="p.str = this.value">
+      </div>`;
+  });
+}
+
+function addBulk(){
+  if(!currentList){
+    alert("Bitte zuerst eine Liste erstellen.");
+    return;
+  }
+
+  bulkInput.value.split("\n").forEach(line=>{
+    const name = line.trim();
+    if(!name) return;
+
+    data.lists[currentList].push({
+      name,
+      str: 2,
+      on: true
+    });
+  });
+
+  bulkInput.value = "";
+  renderPlayers();
+}
+
+/* ---------- TEAMS ---------- */
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+}
+
+function buildTeams(){
+  const n = parseInt(teamCount.value);
+  if(!currentList || !n) return;
+
+  const buckets = {1:[],2:[],3:[],4:[]};
+
+  data.lists[currentList]
+    .filter(p => p.on)
+    .forEach(p => buckets[p.str].push(p));
+
+  let ordered=[];
+  [4,3,2,1].forEach(s=>{
+    shuffle(buckets[s]);
+    ordered = ordered.concat(buckets[s]);
+  });
+
+  const teamsArr = Array.from({length:n},()=>[]);
+  ordered.forEach((p,i)=>teamsArr[i%n].push(p));
+
+  teams.innerHTML="";
+  teamsArr.forEach((t,i)=>{
+    const sum = t.reduce((a,p)=>a+Number(p.str),0);
+    teams.innerHTML += `
+      <div class="team">
+        <strong>Team ${i+1} (Σ ${sum})</strong><br>
+        ${t.map(p=>`${p.name} (${p.str})`).join("<br>")}
+      </div>`;
+  });
+}
+
+/* ---------- DATEI ---------- */
+
+function saveFile(){
+  const blob = new Blob(
+    [JSON.stringify(data,null,2)],
+    {type:"application/json"}
+  );
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "spielerlisten.json";
+  a.click();
+}
+
+function loadFile(){
+  fileInput.value="";
+  fileInput.click();
+}
+
+fileInput.onchange = e => {
+  const r = new FileReader();
+  r.onload = () => {
+    data = JSON.parse(r.result) || {lists:{}};
+    currentList = null;
+    refreshListSelect();
+    renderPlayers();
+    teams.innerHTML="";
+  };
+  r.readAsText(e.target.files[0]);
+};
+
+/* Initial */
+refreshListSelect();
+</script>
+
 </body>
 </html>
