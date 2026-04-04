@@ -94,9 +94,10 @@ input,textarea,select{
   Teameinteilung – <span>by sporteduhub.ch</span>
 </header>
 
-<section>
-  <button onclick="loadFile()">🗂️ Datei laden</button>
-  <button onclick="saveFile()">💼 Datei speichern</button>
+<!-- DATEI LADEN / SPEICHERN NEBENEINANDER -->
+<section style="display:flex; gap:.6rem;">
+  <button style="flex:1;" onclick="loadFile()">🗂️ Laden</button>
+  <button style="flex:1;" onclick="saveFile()">💼 Speichern</button>
   <input type="file" id="fileInput" hidden>
 </section>
 
