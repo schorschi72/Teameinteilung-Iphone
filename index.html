@@ -4,41 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Teams</title>
+<title>Teameinteilung – by sporteduhub.ch</title>
 
 <style>
+/* ---------- GLOBAL ---------- */
 body{
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
   background:#f2f2f7;
-  margin:1rem;
+  margin:0;
+  padding:1rem;
+  color:#111;
 }
 
+/* ---------- HEADER ---------- */
+header{
+  text-align:center;
+  font-size:1.4rem;
+  font-weight:600;
+  margin-bottom:1rem;
+  padding:0.6rem 0;
+  color:#111;
+}
+header span{
+  color:#007aff;
+}
+
+/* ---------- CARDS ---------- */
 section{
   background:#fff;
   border-radius:14px;
   padding:1rem;
   margin-bottom:1rem;
+  box-shadow:0 1px 2px rgba(0,0,0,0.05);
 }
 
+/* ---------- BUTTONS ---------- */
 button{
   width:100%;
-  padding:.6rem;
-  font-size:1rem;
+  padding:.45rem;
+  font-size:.9rem;
   border-radius:10px;
-  border:1px solid #ccc;
-  background:#f7f7f7;
-  margin-top:.5rem;
+  border:1px solid #d1d1d6;
+  background:#ffffff;
+  margin-top:.4rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.4rem;
+}
+button:active{
+  background:#e5e5ea;
 }
 
+/* ---------- INPUTS ---------- */
 input,textarea,select{
   width:100%;
   padding:.5rem;
   font-size:1rem;
-  border-radius:8px;
-  border:1px solid #ccc;
+  border-radius:10px;
+  border:1px solid #d1d1d6;
   margin-top:.4rem;
+  background:#fafafa;
 }
 
+/* ---------- PLAYER LIST ---------- */
 .player{
   display:grid;
   grid-template-columns:auto 1fr auto;
@@ -50,6 +79,7 @@ input,textarea,select{
 .slider{ width:80px; }
 .team{ margin-top:.8rem; }
 
+/* ---------- FOOTNOTE ---------- */
 .small{
   font-size:.8rem;
   color:#666;
@@ -60,21 +90,25 @@ input,textarea,select{
 
 <body>
 
+<header>
+  Teameinteilung – <span>by sporteduhub.ch</span>
+</header>
+
 <section>
-  <button onclick="loadFile()">📂 Datei laden</button>
-  <button onclick="saveFile()">💾 Datei speichern</button>
+  <button onclick="loadFile()">🗂️ Datei laden</button>
+  <button onclick="saveFile()">💼 Datei speichern</button>
   <input type="file" id="fileInput" hidden>
 </section>
 
 <section>
   <select id="listSelect" onchange="selectList()"></select>
-  <button onclick="createNewList()">➕ Neue Liste erstellen</button>
+  <button onclick="createNewList()">✚ Neue Liste erstellen</button>
 </section>
 
 <section>
   <strong>Spieler hinzufügen (1 pro Zeile)</strong>
   <textarea id="bulkInput" rows="3"></textarea>
-  <button onclick="addBulk()">Zur aktuellen Liste hinzufügen</button>
+  <button onclick="addBulk()">➕ Zur aktuellen Liste hinzufügen</button>
 </section>
 
 <section>
@@ -84,7 +118,7 @@ input,textarea,select{
 
 <section>
   <input id="teamCount" type="number" min="2" placeholder="Anzahl Teams">
-  <button onclick="buildTeams()">Teams anzeigen</button>
+  <button onclick="buildTeams()">➤ Teams anzeigen</button>
   <div id="teams"></div>
 </section>
 
