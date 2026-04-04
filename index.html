@@ -266,13 +266,19 @@ function buildTeams(){
 /* ---------- DATEI ---------- */
 
 function saveFile(){
+  let filename = prompt("Wie soll die Datei heissen?");
+  if(!filename || filename.trim() === ""){
+    filename = "spielerlisten";
+  }
+  filename = filename.replace(/[^a-zA-Z0-9-_ ]/g, "").trim() + ".json";
+
   const blob = new Blob(
     [JSON.stringify(data,null,2)],
     {type:"application/json"}
   );
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "spielerlisten.json";
+  a.download = filename;
   a.click();
 }
 
